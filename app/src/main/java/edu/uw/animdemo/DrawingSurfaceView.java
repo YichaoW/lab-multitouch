@@ -10,6 +10,10 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * An example SurfaceView for generating graphics on
  * @author Joel Ross
@@ -31,6 +35,8 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
     private Paint goldPaint; //drawing variables (pre-defined for speed)
 
     public Ball ball; //public for easy access
+
+    public HashMap<Integer, Ball> touches;
 
 
     /**
@@ -60,7 +66,7 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         whitePaint.setColor(Color.WHITE);
         goldPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         goldPaint.setColor(Color.rgb(145, 123, 76));
-
+        touches = new HashMap<Integer, Ball>();
         init();
     }
 
@@ -72,6 +78,23 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         ball = new Ball(viewWidth/2, viewHeight/2, 100);
     }
 
+    public synchronized void addTouch(int pointerID, float x, float y) {
+        Ball ball = new Ball(x, y, 100);
+        touches.put(pointerID, ball);
+    }
+
+    public synchronized void removeTouch(int pointerID) {
+        if (touches.containsKey(pointerID)) {
+            touches.remove(pointerID);
+        }
+    }
+
+    public synchronized void moveTouch(int pointerID, float x, float y) {
+        Ball b = touches.get(pointerID);
+        b.cx = x;
+        b.cy = y;
+        touches.put(pointerID, b);
+    }
 
     /**
      * Helper method for the "game loop"
@@ -117,6 +140,13 @@ public class DrawingSurfaceView extends SurfaceView implements SurfaceHolder.Cal
         if(canvas == null) return; //if we didn't get a valid canvas for whatever reason
 
         canvas.drawColor(Color.rgb(51,10,111)); //purple out the background
+
+        Iterator<Map.Entry<Integer, Ball>> it = touches.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, Ball> pair = it.next();
+            Ball b = pair.getValue();
+            canvas.drawCircle(b.cx, ball.cy, b.radius, goldPaint);
+        }
 
         canvas.drawCircle(ball.cx, ball.cy, ball.radius, whitePaint); //we can draw directly onto the canvas
     }
