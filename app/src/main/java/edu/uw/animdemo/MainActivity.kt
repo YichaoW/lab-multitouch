@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         //Log.v(TAG, event.toString());
+        val pointer = MotionEventCompat.getActionIndex(event)
+        val pointerID = MotionEventCompat.getPointerId(event, pointer)
 
         val gesture = mDetector!!.onTouchEvent(event) //ask the detector to handle instead
         //if(gesture) return true; //if we don't also want to handle
@@ -70,8 +72,6 @@ class MainActivity : AppCompatActivity() {
                 //Log.v(TAG, "finger move");
                 //                view.ball.cx = x;
                 //                view.ball.cy = y;
-                val pointer = MotionEventCompat.getActionIndex(event)
-                val pointerID = MotionEventCompat.getPointerId(event, pointer)
                 for (i in 1 until event.pointerCount) {
                     val id = getPointerId(event, i)
                     view!!.moveTouch(id, getX(event, pointerID), getY(event, pointerID))
@@ -80,15 +80,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             MotionEvent.ACTION_POINTER_DOWN -> {
-                val pointer = MotionEventCompat.getActionIndex(event)
-                val pointerID = MotionEventCompat.getPointerId(event, pointer)
                 view!!.addTouch(pointerID, getX(event, pointerID), getY(event, pointerID))
                 return true
             }
 
             MotionEvent.ACTION_POINTER_UP -> {
-                val pointer = MotionEventCompat.getActionIndex(event)
-                val pointerID = MotionEventCompat.getPointerId(event, pointer)
                 view!!.removeTouch(pointerID)
                 return true
             }
@@ -97,8 +93,6 @@ class MainActivity : AppCompatActivity() {
                 , MotionEvent.ACTION_CANCEL //aborted gesture
                 , MotionEvent.ACTION_OUTSIDE //outside bounds
             -> {
-                val pointer = MotionEventCompat.getActionIndex(event)
-                val pointerID = MotionEventCompat.getPointerId(event, pointer)
                 view!!.removeTouch(pointerID)
                 return super.onTouchEvent(event)
             }
